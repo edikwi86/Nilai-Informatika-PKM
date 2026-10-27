@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMPK 3 PENABUR - Sistem Informasi Akademik</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #071130;
+            --text-white: #ffffff;
+            --text-gray: #94a3b8;
+            --yellow-accent: #facc15;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 90% 10%, #1e3a8a 0%, transparent 40%),
+                radial-gradient(circle at 100% 50%, #4c1d95 0%, transparent 45%),
+                radial-gradient(circle at 10% 90%, #0f172a 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-white);
+            overflow-x: hidden;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        /* --- LOADING ANIMATION PRELOADER --- */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        .spinner-custom {
+            width: 3rem;
+            height: 3rem;
+            border: 0.35em solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--yellow-accent);
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        /* --- ANIMASI ENTRANCE (FADE IN UP) --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* --- ORNAMEN LATAR --- */
+        .wave-glow-1 {
+            position: absolute; width: 800px; height: 800px;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.25), rgba(139, 92, 246, 0.1));
+            border-radius: 40% 60% 60% 40%; right: -200px; top: -100px; filter: blur(60px); z-index: 0;
+        }
+        .wave-glow-2 {
+            position: absolute; width: 600px; height: 600px;
+            background: linear-gradient(45deg, rgba(6, 182, 212, 0.15), rgba(29, 78, 216, 0.05));
+            border-radius: 50%; left: -200px; bottom: -100px; filter: blur(50px); z-index: 0;
+        }
+        .outer-dots {
+            position: absolute; color: rgba(255, 255, 255, 0.08); font-size: 15px;
+            letter-spacing: 6px; line-height: 24px; white-space: pre; z-index: 0;
+        }
+        .dots-left { left: 40px; top: 60%; }
+        .dots-right { right: 40px; top: 18%; }
+
+        /* --- MAIN GLASS CONTAINER --- */
+        .glass-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%);
+            backdrop-filter: blur(35px) saturate(160%);
+            -webkit-backdrop-filter: blur(35px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 50px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+            position: relative;
+            z-index: 1;
+            background-image: 
+                radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+        }
+
+        /* --- LOGO IMAGE STYLING --- */
+        .logo-container {
+            width: 85px;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+        }
+        .logo-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* --- BAR INFO WAKTU --- */
+        .time-bar {
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 18px;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);
+        }
+        .info-icon-wrapper {
+            width: 46px; height: 46px; background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+            display: flex; justify-content: center; align-items: center; font-size: 20px;
+        }
+
+        /* --- CARDS (GREEN & PURPLE) --- */
+        .card-item {
+            border-radius: 26px;
+            padding: 50px 35px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        }
+        .card-item:hover {
+            transform: translateY(-8px);
+        }
+        .card-item::before {
+            content: '••••\n••••'; position: absolute; top: 25px; right: 25px;
+            color: rgba(255, 255, 255, 0.15); font-size: 10px; line-height: 11px;
+            white-space: pre; letter-spacing: 4px;
+        }
+        .gradient-emerald {
+            background: linear-gradient(135deg, #10b981 0%, #047857 60%, #064e3b 100%);
+            box-shadow: 0 25px 50px rgba(4, 120, 87, 0.25), inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+        .gradient-blue-purple {
+            background: linear-gradient(135deg, #a855f7 0%, #3b82f6 50%, #1d4ed8 100%);
+            box-shadow: 0 25px 50px rgba(37, 99, 235, 0.25), inset 0 1px 2px rgba(255,255,255,0.3);
+        }
+
+        /* --- GLASS ICON CONTAINER --- */
+        .glass-icon-box {
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: 26px; display: flex; justify-content: center; align-items: center;
+            font-size: 44px; border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), inset 0 4px 10px rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s ease;
+        }
+        .card-item:hover .glass-icon-box {
+            transform: scale(1.08) rotate(3deg);
+        }
+
+        /* --- BUTTON PILL --- */
+        .btn-pill {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 36px; border-radius: 30px; color: white;
+            font-size: 14px; font-weight: 600; transition: all 0.3s; text-decoration: none;
+        }
+        .btn-pill:hover {
+            background: #ffffff; color: var(--bg-dark); box-shadow: 0 10px 20px rgba(255,255,255,0.3);
+        }
+
+        /* --- LOWER FEATURE BAR --- */
+        .features-row {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+        }
+        .feat-item { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+        .feat-item:last-child { border-right: none; }
+        
+        @media (max-width: 991.98px) {
+            .feat-item { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px; }
+            .feat-item:last-child { border-bottom: none; padding-bottom: 0; }
+            .outer-dots { display: none; }
+        }
+
+        .footer-text { font-size: 12px; color: #475569; font-weight: 500; line-height: 1.8; }
+    </style>
+</head>
+<body>
+
+    <!-- Animasi Loading Layar Awal -->
+    <div id="loading-screen">
+        <div class="spinner-custom mb-3"></div>
+        <h5 class="text-light text-opacity-75 font-monospace">Memuat Sistem...</h5>
+    </div>
+
+    <!-- Ornamen Latar Belakang -->
+    <div class="wave-glow-1"></div>
+    <div class="wave-glow-2"></div>
+    <div class="outer-dots dots-left">••••<br>••••<br>••••<br>••••<br>••••<br>••••</div>
+    <div class="outer-dots dots-right">••••<br>••••<br>••••<br>••••<br>••••<br>••••</div>
+
+    <!-- Container Utama Menggunakan Grid Bootstrap -->
+    <div class="container my-auto animate-fade-in" style="max-width: 1160px;">
+        <div class="glass-container">
+            
+            <!-- Header Atas -->
+            <header class="row align-items-center mb-4 text-center text-sm-start">
+                <div class="col-12 col-sm-auto d-flex justify-content-center mb-3 mb-sm-0">
+                    <div class="logo-container">
+                        <!-- Mengarah langsung ke file gambar lokal logo BPK Penabur baru -->
+                        <img src="LOGO BPK PENABUR.png" alt="Logo BPK PENABUR" class="logo-img">
+                    </div>
+                </div>
+                <div class="col-12 col-sm">
+                    <h1 class="fw-bold m-0 fs-2 fs-md-1">SMPK 3 PENABUR</h1>
+                    <h2 class="fs-5 text-warning fw-semibold mt-1">Sistem Informasi Akademik</h2>
+                    <p class="text-secondary small m-0 mt-2">Akses Nilai Lebih Mudah, Informasi Lebih Cepat, Masa Depan Lebih Hebat</p>
+                </div>
+            </header>
+
+            <!-- Bar Waktu & Tanggal -->
+            <div class="time-bar p-3 px-4 mb-4">
+                <div class="row g-3 justify-content-between align-items-center">
+                    <div class="col-12 col-md-auto d-flex align-items-center gap-3">
+                        <div class="info-icon-wrapper text-info"><i class="bi bi-calendar-check"></i></div>
+                        <div>
+                            <p id="date-display" class="m-0 fw-semibold fs-6">Minggu, 19 Juli 2026</p>
+                            <p class="m-0 small text-secondary">Hari ini</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-auto d-flex align-items-center gap-3">
+                        <div class="info-icon-wrapper text-warning"><i class="bi bi-clock"></i></div>
+                        <div>
+                            <p id="time-display" class="m-0 fw-semibold fs-6">18:30:34</p>
+                            <p class="m-0 small text-secondary">Waktu Saat Ini</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Dua Menu Pilihan Utama -->
+            <main class="row g-4 mb-4">
+                <!-- Cek Sumatif -->
+                <div class="col-12 col-lg-6">
+                    <div class="card-item gradient-emerald d-flex flex-column align-items-center text-center h-100">
+                        <div class="glass-icon-box mb-4">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <h3 class="fw-bold fs-5 tracking-wide text-uppercase mb-2">Cek Sumatif Harian</h3>
+                        <p class="small text-light text-opacity-90 px-md-4 mb-4" style="height: 44px; max-width: 360px;">Melihat hasil Sumatif Harian berdasarkan NIS siswa secara cepat dan akurat.</p>
+                        <!-- Menghubungkan ke sumatif.html -->
+                        <a href="sumatif.html" class="btn-pill mt-auto d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-search"></i> Buka Menu
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cek TKA -->
+                <div class="col-12 col-lg-6">
+                    <div class="card-item gradient-blue-purple d-flex flex-column align-items-center text-center h-100">
+                        <div class="glass-icon-box mb-4">
+                            <i class="bi bi-bar-chart-line"></i>
+                        </div>
+                        <h3 class="fw-bold fs-5 tracking-wide text-uppercase mb-2">Cek Hasil TKA</h3>
+                        <p class="small text-light text-opacity-90 px-md-4 mb-4" style="height: 44px; max-width: 360px;">Melihat hasil Tes Kemampuan Akademik (TKA) dengan mudah dan aman.</p>
+                        <!-- Menghubungkan ke tka.html -->
+                        <a href="tka.html" class="btn-pill mt-auto d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-search"></i> Buka Menu
+                        </a>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bar Fitur Layanan Bawah -->
+            <section class="features-row p-4 text-center text-lg-start">
+                <div class="row g-4">
+                    <div class="col-12 col-md-6 col-lg-3 feat-item d-flex align-items-center justify-content-lg-center gap-3">
+                        <i class="bi bi-shield-check text-success fs-3"></i>
+                        <div>
+                            <h4 class="m-0 small fw-bold">Aman</h4>
+                            <p class="m-0 text-secondary" style="font-size: 11px;">Data Terlindungi</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 feat-item d-flex align-items-center justify-content-lg-center gap-3">
+                        <i class="bi bi-lightning-charge text-warning fs-3"></i>
+                        <div>
+                            <h4 class="m-0 small fw-bold">Cepat</h4>
+                            <p class="m-0 text-secondary" style="font-size: 11px;">Akses Tanpa Ribet</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 feat-item d-flex align-items-center justify-content-lg-center gap-3">
+                        <i class="bi bi-phone-flip text-info fs-3"></i>
+                        <div>
+                            <h4 class="m-0 small fw-bold">Responsif</h4>
+                            <p class="m-0 text-secondary" style="font-size: 11px;">Buka di Mana Saja</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 feat-item d-flex align-items-center justify-content-lg-center gap-3">
+                        <i class="bi bi-star text-purple fs-3" style="color:#c084fc;"></i>
+                        <div>
+                            <h4 class="m-0 small fw-bold">Untuk Masa Depan</h4>
+                            <p class="m-0 text-secondary" style="font-size: 11px;">Prestasi Lebih Baik</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer Hak Cipta -->
+        <footer class="footer-text text-center mt-4">
+            © 2026 SMPK 3 PENABUR<br>Sistem Informasi Akademik
+        </footer>
+    </div>
+
+    <!-- Script Fungsional -->
+    <script>
+        // 1. Logika Preloader Loading Screen
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loading-screen');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+            }, 600); 
+        });
+
+        // 2. Logika Jam Hidup Waktu Nyata & Tanggal Indonesia
+        function updateAcademicClock() {
+            const now = new Date();
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('time-display').textContent = `${hours}:${minutes}:${seconds}`;
+
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            document.getElementById('date-display').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        }
+        setInterval(updateAcademicClock, 1000);
+        updateAcademicClock();
+    </script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMPK PENABUR Kota Modern- Sistem Informasi Akademik</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* MENGUBAH TEMA MENJADI LEBIH TERANG (MIDNIGHT SLATE) */
+            --bg-dark: #0d1527;
+            --text-white: #ffffff;
+            --text-gray: #cbd5e1;
+            --yellow-accent: #fbbf24;
+            
+            --emerald-bright: #10b981;
+            --blue-bright: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            /* Gradasi latar belakang yang lebih terang dan kaya warna */
+            background-image: 
+                radial-gradient(circle at 50% 50%, #1e293b 0%, transparent 60%),
+                radial-gradient(circle at 0% 0%, #1e3a8a 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, #0f172a 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-white);
+            overflow-x: hidden;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        /* --- BACKGROUND ARTWORK (GEDUNG SEKOLAH AMBIENT) --- */
+        .bg-artwork {
+            position: fixed;
+            top: 0; right: 0;
+            width: 45%; height: 100%;
+            z-index: 0;
+            opacity: 0.25; /* Sedikit dinaikkan agar lebih kelihatan */
+            pointer-events: none;
+        }
+        .bg-artwork img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            mask-image: linear-gradient(to left, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+        }
+        
+        /* Cahaya Ambient Terang di Belakang Kotak */
+        .bg-glow {
+            position: fixed;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        /* --- PRELOADER LOADING --- */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.4s ease, visibility 0.4s;
+        }
+        .spinner-custom {
+            width: 2.5rem; height: 2.5rem;
+            border: 0.25em solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--yellow-accent);
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        /* --- ENTRANCE ANIMATION --- */
+        @keyframes dynamicFadeIn {
+            from { opacity: 0; transform: scale(0.98) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-fade-in {
+            animation: dynamicFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* --- MAIN PREMIUM GLASS CONTAINER (LEBIH KONTRAS) --- */
+        .glass-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 36px;
+            padding: 50px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- HEADER & BRANDING --- */
+        .logo-box {
+            width: 70px; height: 70px;
+            filter: drop-shadow(0 8px 25px rgba(59, 130, 246, 0.25));
+        }
+        .main-title {
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: #ffffff;
+        }
+        .badge-premium {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 16px; border-radius: 100px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1px;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        /* --- LIVE TIME BAR --- */
+        .time-bar {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
+
+        /* --- MENU CARDS (SANGAT MENCOLOK DI BG TERANG) --- */
+        .card-menu {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            padding: 45px 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .status-dot {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Efek Menyala Saat Hover */
+        .menu-sumatif:hover {
+            transform: translateY(-8px);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(4, 120, 87, 0.4) 100%);
+            border-color: #34d399;
+            box-shadow: 0 25px 50px rgba(16, 185, 129, 0.3);
+        }
+
+        .menu-tka:hover {
+            transform: translateY(-8px);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.4) 100%);
+            border-color: #60a5fa;
+            box-shadow: 0 25px 50px rgba(59, 130, 246, 0.3);
+        }
+
+        /* --- ICON ZONE --- */
+        .icon-circle {
+            width: 75px; height: 75px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 32px;
+            transition: all 0.4s ease;
+        }
+        .menu-sumatif .icon-circle { color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
+        .menu-tka .icon-circle { color: #60a5fa; border-color: rgba(59, 130, 246, 0.4); }
+
+        .menu-sumatif:hover .icon-circle { background: var(--emerald-bright); color: #fff; border-color: var(--emerald-bright); transform: scale(1.05); }
+        .menu-tka:hover .icon-circle { background: var(--blue-bright); color: #fff; border-color: var(--blue-bright); transform: scale(1.05); }
+
+        /* --- BUTTONS --- */
+        .btn-action {
+            background: #ffffff;
+            border: 1px solid #ffffff;
+            padding: 15px 0;
+            width: 100%;
+            border-radius: 18px;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        .menu-sumatif:hover .btn-action { background: #ffffff; color: #047857; box-shadow: 0 15px 30px rgba(255, 255, 255, 0.4); }
+        .menu-tka:hover .btn-action { background: #ffffff; color: #1d4ed8; box-shadow: 0 15px 30px rgba(255, 255, 255, 0.4); }
+        
+        .btn-action:hover {
+            transform: scale(1.02);
+        }
+
+        /* --- FOOTER & FEATURES --- */
+        .feature-box { font-size: 12px; color: var(--text-gray); }
+        .footer-credit { font-size: 11px; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; }
+
+        @media (max-width: 768px) {
+            .bg-artwork { width: 100%; opacity: 0.1; }
+            .glass-container { padding: 35px 20px; }
+            .card-menu { padding: 35px 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layar Memuat Awal -->
+    <div id="loading-screen">
+        <div class="spinner-custom mb-3"></div>
+        <h6 class="text-light text-opacity-75 tracking-widest text-uppercase small">Menyiapkan Sistem...</h6>
+    </div>
+
+    <!-- Hiasan Cahaya Latar Belakang -->
+    <div class="bg-glow"></div>
+    <div class="bg-artwork">
+        <img src="gedung.jpeg" alt="Latar Belakang Gedung Sekolah">
+    </div>
+
+    <!-- Container Utama -->
+    <div class="container my-auto animate-fade-in" style="max-width: 1150px;">
+        <div class="glass-container">
+            
+            <!-- Header Utama -->
+            <header class="row align-items-center mb-5 g-4">
+                <div class="col-12 col-md-8 text-center text-md-start">
+                    <div class="d-flex flex-column flex-md-row align-items-center gap-3 mb-3 justify-content-center justify-content-md-start">
+                        <img src="LOGO BPK PENABUR.png" alt="Logo Sekolah" class="logo-box">
+                        <div class="text-center text-md-start">
+                            <span class="badge-premium text-info"><i class="bi bi-shield-lock-fill me-1"></i> LOG AKSES PUSAT</span>
+                            <h1 class="main-title m-0 fs-1 mt-2">SMPK PENABUR Kota Modern</h1>
+                        </div>
+                    </div>
+                    <p class="text-gray small m-0" style="max-width: 580px;">
+                        Pusat navigasi dan pemantauan berkala nilai akademik mandiri. Masukkan kredensial nomor induk siswa untuk membuka rekapitulasi evaluasi.
+                    </p>
+                </div>
+            </header>
+
+            <!-- Bar Jam & Tanggal -->
+            <div class="time-bar p-3 px-4 mb-5">
+                <div class="row g-3 justify-content-between align-items-center text-center text-md-start">
+                    <div class="col-12 col-md-auto d-flex flex-column flex-md-row align-items-center gap-2 gap-md-3">
+                        <span class="text-gray small"><i class="bi bi-calendar3 me-1"></i> Penanggalan:</span>
+                        <span id="date-display" class="fw-medium small text-light">Minggu, 19 Juli 2026</span>
+                    </div>
+                    <div class="col-12 col-md-auto d-flex flex-column flex-md-row align-items-center gap-2 gap-md-3">
+                        <span class="text-gray small"><i class="bi bi-clock me-1"></i> Sinkronisasi Jam:</span>
+                        <span id="time-display" class="fw-bold small text-warning tracking-widest">18:30:34</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kartu Navigasi Menu Utama -->
+            <main class="row g-4 mb-5">
+                <!-- Portal 1: Sumatif Harian -->
+                <div class="col-12 col-md-6">
+                    <div class="card-menu menu-sumatif d-flex flex-column align-items-start h-100">
+                        <div class="d-flex justify-content-between align-items-center w-100 mb-4">
+                            <div class="icon-circle"><i class="bi bi-layers-half"></i></div>
+                            <span class="status-dot" style="color:#34d399;"><i class="bi bi-circle-fill fs-6"></i> PORTAL ONLINE</span>
+                        </div>
+                        <h3 class="fw-extrabold fs-4 mb-2 text-white">Sumatif Harian</h3>
+                        <p class="text-gray small mb-5">Pemeriksaan instan nilai sumatif harian, tugas, proyek siswa.</p>
+                        <a href="sumatif.html" class="btn-action mt-auto">
+                            Periksa Nilai Sumatif <i class="bi bi-chevron-right fw-bold"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Portal 2: Ujian TKA -->
+                <div class="col-12 col-md-6">
+                    <div class="card-menu menu-tka d-flex flex-column align-items-start h-100">
+                        <div class="d-flex justify-content-between align-items-center w-100 mb-4">
+                            <div class="icon-circle"><i class="bi bi-graph-up-arrow"></i></div>
+                            <span class="status-dot" style="color:#60a5fa;"><i class="bi bi-circle-fill fs-6"></i> PORTAL ONLINE</span>
+                        </div>
+                        <h3 class="fw-extrabold fs-4 mb-2 text-white">Tes Kemampuan Akademik</h3>
+                        <p class="text-gray small mb-5">Menampilkan hasil Tes Kemampuan Akademik (TKA).</p>
+                        <a href="tka.html" class="btn-action mt-auto">
+                            Periksa Hasil TKA <i class="bi bi-chevron-right fw-bold"></i>
+                        </a>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Kaki Halaman / Footer -->
+            <footer class="pt-4 border-top border-secondary border-opacity-20">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <div class="col-12 col-lg-7">
+                        <div class="row g-3 justify-content-center justify-content-lg-start">
+                            <div class="col-auto feature-box d-flex align-items-center gap-2">
+                                <i class="bi bi-patch-check-fill text-success"></i> Terverifikasi Keamanan
+                            </div>
+                            <div class="col-auto feature-box d-flex align-items-center gap-2">
+                                <i class="bi bi-cpu-fill text-warning"></i> Pemrosesan Cepat
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-auto text-center text-lg-end">
+                        <div class="footer-credit">© 2026 SMPK PENABUR Kota Modern</div>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- Script Pengendali Fitur Jam -->
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loading-screen');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+            }, 300); 
+        });
+
+        function runLiveClock() {
+            const sekarang = new Date();
+            
+            const jam = String(sekarang.getHours()).padStart(2, '0');
+            const menit = String(sekarang.getMinutes()).padStart(2, '0');
+            const detik = String(sekarang.getSeconds()).padStart(2, '0');
+            document.getElementById('time-display').textContent = `${jam}:${menit}:${detik}`;
+
+            const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            document.getElementById('date-display').textContent = `${namaHari[sekarang.getDay()]}, ${sekarang.getDate()} ${namaBulan[sekarang.getMonth()]} ${sekarang.getFullYear()}`;
+        }
+        setInterval(runLiveClock, 1000);
+        runLiveClock();
+    </script>
+</body>
+</html>
